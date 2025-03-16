@@ -1,23 +1,21 @@
-use crate::time::Time;
+use crate::time::{Duration, Time};
+use crate::shift_list::{fixed_shift_list, fixed_shift_list_cyclical, var_shift_list};
 
 mod time;
+mod shift_list;
+mod util;
 
 fn main() {
-    let t1 = Time::new(0, 0, 0);
-    let t2 = Time::new(13, 22, 0);
-    let t3 = Time::new(6, 0, 0);
-    let xxxviii_min = Time::new(0, 38, 0);
-    let t4 = t1 + t2;
-    let t5 = t2 + t3;
-    let t6 = t5 + t3;
-    let t7 = t6 + xxxviii_min;
+    let start_time = Time::new(19, 0, 0);
+    let shift_time = Duration::new(1, 15, 0);
+    let rotation_dur = Duration::new(10, 0, 0);
+    let names = ["Collins", "Akiva", "Nadav", "Matan", "Yaron", "Yarom", "Babich",
+        "Moshiko", "Caspi"];
 
-    println!("t1: {}", t1);
-    println!("t2: {}", t2);
-    println!("t3: {}", t3);
-    println!("t1 + t2: {}", t4);
-    println!("t2 + t3: {}", t5);
-    println!("t2 + 2*t3: {}", t6);
-    println!("t2 + 2*t3 + 38 minutes: {}", t7);
+    let (shift_list, shift_len) = var_shift_list(&names, start_time, rotation_dur);
+
+    for (name, time) in shift_list {
+        println!("{}-{} {}", time, time + shift_len, name);
+    }
 
 }
