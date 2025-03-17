@@ -37,3 +37,18 @@ pub fn var_shift_list(names: &[&str], start_time: Time, duration: Duration)
 
     (fixed_shift_list(names, shift_time, start_time), shift_time)
 }
+
+pub fn interval_var_shift_list(names: &[&str], start_time: Time, end_time: Time)
+                               -> (Vec<(String, Time)>, Duration) {
+    let duration = end_time - start_time;
+    var_shift_list(names, start_time, duration)
+}
+
+pub fn interval_fixed_shift_list(names: &[&str], shift_len: Duration, start_time: Time, end_time: Time)
+    -> (Vec<(String, Time)>, Duration) {
+    let shift_count =
+        if start_time == end_time { Duration::new(24, 0, 0) / shift_len }
+        else { (end_time - start_time) / shift_len };
+
+    (fixed_shift_list_cyclical(names, shift_len, start_time, shift_count), shift_len)
+}
