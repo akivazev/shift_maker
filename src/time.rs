@@ -1,9 +1,9 @@
 use std::cmp::Ordering;
 use std::fmt;
-use std::ops::{Add, Div, };
-use crate::util::{mod_remainder, div_rem};
+use std::ops::{Add, Div, Sub};
+use crate::util::{mod_remainder, div_rem, mod_subtract};
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub struct Time {
     hours: u32,
     minutes: u32,
@@ -12,7 +12,7 @@ pub struct Time {
 
 impl Time {
     pub fn new(hours: u32, minutes: u32, seconds: u32) -> Self {
-        Self { hours: hours % 60, minutes: minutes % 60, seconds: seconds % 24 }
+        Self { hours: hours % 24, minutes: minutes % 60, seconds: seconds % 60 }
     }
 }
 
@@ -71,6 +71,35 @@ impl Add<Duration> for Time {
     }
 }
 
+impl Sub<Time> for Time {
+    type Output = Duration;
+    fn sub(self, rhs: Self) -> Duration {
+        if self == rhs {
+            Duration::new(0, 0, 0)
+        } else {
+            let (seconds, minutes_carry) = mod_subtract(self.seconds, rhs.seconds, 60);
+            let (minutes, hours_carry) = mod_subtract(self.minutes, rhs.minutes + minutes_carry, 60);
+            let (hours, _) = mod_subtract(self.hours, rhs.hours + hours_carry, 24);
+
+            Duration{ hours, minutes, seconds }
+        }
+    }
+}
+
+impl Ord for Time {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.hours.cmp(&other.hours)
+            .then(self.minutes.cmp(&other.minutes))
+            .then(self.seconds.cmp(&other.seconds))
+    }
+}
+
+impl PartialOrd for Time {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
 impl Add for Duration {
     type Output = Self;
     fn add(self, rhs: Self) -> Self {
@@ -93,6 +122,15 @@ impl Div<u32> for Duration {
         let seconds = (self.seconds + 60*minutes_rem) / rhs;
 
         Self { hours, minutes, seconds }
+    }
+}
+
+impl Div<Duration> for Duration {
+    type Output = u32;
+    fn div(self, rhs: Duration) -> u32 {
+        let self_seconds = self.seconds + 60*(self.minutes + 60*self.hours);
+        let rhs_seconds = rhs.seconds + 60*(rhs.minutes + 60*rhs.hours);
+        self_seconds / rhs_seconds
     }
 }
 
