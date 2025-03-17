@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 use std::fmt;
 use std::ops::{Add, Div, Sub};
-use crate::util::{mod_remainder, div_rem, mod_subtract};
+use crate::util::{mod_remainder, div_rem, mod_subtract, is_valid_time};
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub struct Time {
@@ -14,6 +14,22 @@ impl Time {
     pub fn new(hours: u32, minutes: u32, seconds: u32) -> Self {
         Self { hours: hours % 24, minutes: minutes % 60, seconds: seconds % 60 }
     }
+
+    pub fn from_string(time_str: &str) -> Option<Time> {
+        if is_valid_time(time_str) {
+            let parts: Vec<&str> = time_str.split(":").collect();
+            if let [hours_str, minutes_str] = parts[..] {
+                if let (Ok(hours), Ok(minutes)) = (hours_str.parse::<u32>(), minutes_str.parse::<u32>()) {
+                    return Some(Time::new(hours, minutes, 0 ))
+                }
+            } else if let [hours_str] = parts[..] {
+                if let Ok(hours) = hours_str.parse::<u32>() {
+                    return Some(Time{ hours, minutes: 0, seconds: 0 })
+                }
+            }
+        }
+        None
+    }
 }
 
 impl fmt::Display for Time {
@@ -24,6 +40,7 @@ impl fmt::Display for Time {
 
         write!(f, "{:02}:{:02}", hours, minutes)
     }
+
 }
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
@@ -36,6 +53,22 @@ pub struct Duration {
 impl Duration {
     pub fn new(hours: u32, minutes: u32, seconds: u32) -> Self {
         Self { hours, minutes, seconds }
+    }
+
+    pub fn from_string(duration_str: &str) -> Option<Duration> {
+        if is_valid_time(duration_str) {
+            let parts: Vec<&str> = duration_str.split(":").collect();
+            if let [hours_str, minutes_str] = parts[..] {
+                if let (Ok(hours), Ok(minutes)) = (hours_str.parse::<u32>(), minutes_str.parse::<u32>()) {
+                    return Some(Duration{ hours, minutes, seconds: 0 })
+                }
+            } else if let [hours_str] = parts[..] {
+                if let Ok(hours) = hours_str.parse::<u32>() {
+                    return Some(Duration{ hours, minutes: 0, seconds: 0 })
+                }
+            }
+        }
+        return None
     }
 }
 
