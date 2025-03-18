@@ -1,12 +1,12 @@
 use crate::time::{Duration, Time};
 
-pub fn fixed_shift_list(names: &[&str], shift_len: Duration, start_time: Time) -> Vec<(String, Time)> {
-    let mut shift_list: Vec<(String, Time)> = Vec::with_capacity(names.len());
+pub fn fixed_shift_list(names: &[&str], shift_len: Duration, start_time: Time) -> Vec<(String, Time, Time)> {
+    let mut shift_list: Vec<(String, Time, Time)> = Vec::with_capacity(names.len());
 
     let mut shift_start = start_time;
 
     for &name in names {
-        shift_list.push((String::from(name), shift_start));
+        shift_list.push((String::from(name), shift_start, shift_start + shift_len));
         shift_start = shift_start + shift_len;
     }
 
@@ -14,8 +14,8 @@ pub fn fixed_shift_list(names: &[&str], shift_len: Duration, start_time: Time) -
 }
 
 pub fn fixed_shift_list_cyclical(names: &[&str], shift_len: Duration, start_time: Time,
-                                 shift_count: u32) -> Vec<(String, Time)> {
-    let mut shift_list: Vec<(String, Time)> = Vec::with_capacity(names.len());
+                                 shift_count: u32) -> Vec<(String, Time, Time)> {
+    let mut shift_list: Vec<(String, Time, Time)> = Vec::with_capacity(names.len());
 
     let name_count = names.len() as u32;
 
@@ -23,7 +23,8 @@ pub fn fixed_shift_list_cyclical(names: &[&str], shift_len: Duration, start_time
 
 
     for i in 0..shift_count {
-        shift_list.push((String::from(names[(i % name_count) as usize]), shift_start));
+        shift_list.push((String::from(names[(i % name_count) as usize]),
+                         shift_start, shift_start + shift_len));
         shift_start = shift_start + shift_len;
     }
 
@@ -31,24 +32,24 @@ pub fn fixed_shift_list_cyclical(names: &[&str], shift_len: Duration, start_time
 }
 
 pub fn var_shift_list(names: &[&str], start_time: Time, duration: Duration)
-    -> (Vec<(String, Time)>, Duration) {
+    -> Vec<(String, Time, Time)> {
 
     let shift_time = duration / names.len() as u32;
 
-    (fixed_shift_list(names, shift_time, start_time), shift_time)
+    fixed_shift_list(names, shift_time, start_time)
 }
 
 pub fn interval_var_shift_list(names: &[&str], start_time: Time, end_time: Time)
-                               -> (Vec<(String, Time)>, Duration) {
+                               -> Vec<(String, Time, Time)> {
     let duration = end_time - start_time;
     var_shift_list(names, start_time, duration)
 }
 
 pub fn interval_fixed_shift_list(names: &[&str], shift_len: Duration, start_time: Time, end_time: Time)
-    -> (Vec<(String, Time)>, Duration) {
+    -> Vec<(String, Time, Time)> {
     let shift_count =
         if start_time == end_time { Duration::new(24, 0, 0) / shift_len }
         else { (end_time - start_time) / shift_len };
 
-    (fixed_shift_list_cyclical(names, shift_len, start_time, shift_count), shift_len)
+    fixed_shift_list_cyclical(names, shift_len, start_time, shift_count)
 }
