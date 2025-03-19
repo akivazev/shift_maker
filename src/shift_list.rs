@@ -1,7 +1,20 @@
 use crate::time::{Duration, Time};
+use std::fmt::Write;
 
-pub fn fixed_shift_list(names: &[&str], shift_len: Duration, start_time: Time) -> Vec<(String, Time, Time)> {
-    let mut shift_list: Vec<(String, Time, Time)> = Vec::with_capacity(names.len());
+pub type ShiftList = Vec<(String, Time, Time)>;
+
+pub fn shift_list_to_string(shift_list: &ShiftList) -> String {
+    let mut list_str = String::new();
+
+    for (name, start, end) in shift_list {
+        writeln!(list_str, "{}-{} {}", start, end, name).unwrap();
+    }
+
+    list_str
+}
+
+pub fn fixed_shift_list(names: &[&str], shift_len: Duration, start_time: Time) -> ShiftList {
+    let mut shift_list: ShiftList = Vec::with_capacity(names.len());
 
     let mut shift_start = start_time;
 
@@ -14,8 +27,8 @@ pub fn fixed_shift_list(names: &[&str], shift_len: Duration, start_time: Time) -
 }
 
 pub fn fixed_shift_list_cyclical(names: &[&str], shift_len: Duration, start_time: Time,
-                                 shift_count: u32) -> Vec<(String, Time, Time)> {
-    let mut shift_list: Vec<(String, Time, Time)> = Vec::with_capacity(names.len());
+                                 shift_count: u32) -> ShiftList {
+    let mut shift_list: ShiftList = Vec::with_capacity(names.len());
 
     let name_count = names.len() as u32;
 
@@ -32,7 +45,7 @@ pub fn fixed_shift_list_cyclical(names: &[&str], shift_len: Duration, start_time
 }
 
 pub fn var_shift_list(names: &[&str], start_time: Time, duration: Duration)
-    -> Vec<(String, Time, Time)> {
+    -> ShiftList {
 
     let shift_time = duration / names.len() as u32;
 
@@ -40,13 +53,13 @@ pub fn var_shift_list(names: &[&str], start_time: Time, duration: Duration)
 }
 
 pub fn interval_var_shift_list(names: &[&str], start_time: Time, end_time: Time)
-                               -> Vec<(String, Time, Time)> {
+                               -> ShiftList {
     let duration = end_time - start_time;
     var_shift_list(names, start_time, duration)
 }
 
 pub fn interval_fixed_shift_list(names: &[&str], shift_len: Duration, start_time: Time, end_time: Time)
-    -> Vec<(String, Time, Time)> {
+    -> ShiftList {
     let shift_count =
         if start_time == end_time { Duration::new(24, 0, 0) / shift_len }
         else { (end_time - start_time) / shift_len };
