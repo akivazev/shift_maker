@@ -3,7 +3,7 @@ use std::fmt;
 use std::ops::{Add, Div, Sub};
 use crate::util::{mod_remainder, div_rem, mod_subtract, is_valid_time};
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Default)]
 pub struct Time {
     hours: u32,
     minutes: u32,
@@ -43,7 +43,7 @@ impl fmt::Display for Time {
 
 }
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Default)]
 pub struct Duration {
     pub hours: u32,
     pub minutes: u32,
