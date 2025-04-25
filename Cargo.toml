@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 regex = "1.11.1"
+rand = "0.9.1"
 
 [lib]
 name = "shift_maker"
